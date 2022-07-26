@@ -1,5 +1,4 @@
 const mariadb = require('mariadb');
-const dotenv = require('dotenv').config();
 
 // Initialize Pool
 const pool = mariadb.createPool({
@@ -10,14 +9,14 @@ const pool = mariadb.createPool({
     connectionLimit: 10
 });
 
-exports.query = async function(sql, params) {
-    try{
-        conn = await pool.getConnection();
-        res = await conn.query(sql, params);
-        await conn.end()
-        return res;
-    } catch(err) {
-        console.log(err)
-        throw err;
+// Connect and check for errors
+pool.getConnection((err, connection) => {
+    if(err){
+        console.error("Problem while setting up database...");
+        process.exit(1);
     }
-}
+    if(connection) connection.release();
+    return;
+});
+
+module.exports = pool;
